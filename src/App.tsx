@@ -1,24 +1,26 @@
 import React from 'react';
-import logo from './logo.svg';
+import Demo from './Demo';
 import './App.css';
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
+import { createTheme, ThemeProvider } from '@mui/material';
+
+const theme = createTheme();
+
+theme.typography.h5 = {
+  ...theme.typography.h5,
+  paddingTop: '2rem',
+  paddingBottom: '0.5rem',
+};
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <ThemeProvider theme={theme}>
+        <Demo />
+      </ThemeProvider>
     </div>
   );
 }

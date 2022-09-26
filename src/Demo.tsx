@@ -20,39 +20,158 @@ const InitialConfig = MuiConfig;
 const config: Config = {
   ...InitialConfig,
   fields: {
-    qty: {
-      label: 'Qty',
-      type: 'number',
+    encounter_date: {
+      label: 'Encounter Date',
+      type: 'date',
       fieldSettings: {
-        min: 0,
+        dateFormat: 'MM/DD/YYYY',
       },
       valueSources: ['value'],
-      preferWidgets: ['number'],
     },
-    price: {
-      label: 'Price',
+    calendar_year: {
+      label: 'Calendar Year',
       type: 'number',
-      valueSources: ['value'],
       fieldSettings: {
-        min: 10,
-        max: 100,
+        min: 2015,
+        max: new Date().getFullYear(),
       },
-      preferWidgets: ['slider', 'rangeslider'],
+      valueSources: ['value'],
     },
-    color: {
-      label: 'Color',
+    encounter_type: {
+      label: 'Encounter Type',
       type: 'select',
       valueSources: ['value'],
       fieldSettings: {
         listValues: [
-          { value: 'yellow', title: 'Yellow' },
-          { value: 'green', title: 'Green' },
-          { value: 'orange', title: 'Orange' },
+          { value: 'Ambulatory Surgery', title: 'Ambulatory Surgery' },
+          { value: 'Emergency Department', title: 'Emergency Department' },
+          { value: 'Inpatient', title: 'Inpatient' },
+          { value: 'Observation', title: 'Observation' },
         ],
       },
     },
-    is_promotion: {
-      label: 'Promo?',
+    diagnosis: {
+      label: 'Diagnosis',
+      type: '!struct',
+      subfields: {
+        group: {
+          type: 'select',
+          label: 'Diagnosis Group',
+          valueSources: ['value'],
+          fieldSettings: {
+            listValues: [
+              {
+                value: 'dailyPlanet-j11-diagnosis',
+                title: 'Asthma (Daily Planet)',
+              },
+            ],
+          },
+        },
+      },
+    },
+    procedure: {
+      label: 'Procedure',
+      type: '!struct',
+      subfields: {
+        group: {
+          type: 'select',
+          label: 'Procedure Group',
+          valueSources: ['value'],
+          fieldSettings: {
+            listValues: [
+              {
+                value: 'dailyPlanet-d17a-procedure',
+                title:
+                  'Hepatoportoenterostomy or Kasai procedure on a patient with biliary atresia (Daily Planet D17.a)',
+              },
+              {
+                value: 'dailyPlanet-d17b-procedure',
+                title:
+                  'Laparoscopic gastrointestinal, hepatic, and pancreatic surgery (Daily Planet D17.b)',
+              },
+              {
+                value: 'dailyPlanet-d17c-procedure',
+                title: 'Bariatric surgery (Daily Planet D17.c)',
+              },
+              {
+                value: 'dailyPlanet-d17d-procedure',
+                title:
+                  'Posterior sagittal anorectoplasties (Pena) for imperforate anus (Daily Planet D17.d)',
+              },
+              {
+                value: 'dailyPlanet-d17e-procedure',
+                title:
+                  'Open abdominal surgeries for inflammatory bowel disease (IBD) (Daily Planet D17.e)',
+              },
+              {
+                value: 'dailyPlanet-d17f-procedure',
+                title:
+                  'Laparoscopic abdominal surgeries for inflammatory bowel disease (IBD) (Daily Planet D17.f)',
+              },
+            //   {
+            //     value: 'dailyPlanet-d17a-procedure',
+            //     title:
+            //       'Congenital tracheo-esophageal fistula with or without esophageal atresia and congenital esophageal stenosis and stricture repair (see code list – must have both diagnosis and procedure code) (Daily Planet D17.g)',
+            //   },
+            ],
+          },
+        },
+      },
+    },
+    provider: {
+      label: 'Provider',
+      type: '!struct',
+      subfields: {
+        group: {
+          type: 'select',
+          label: 'Provider Group',
+          valueSources: ['value'],
+          fieldSettings: {
+            listValues: [
+              {
+                value: 'pediatric-congenital-cardiology',
+                title: 'Pediatric Congenital Cardiology',
+              },
+              {
+                value: 'pediatric-cardiothoracic-survey',
+                title: 'Pediatric Cardiothoracic Survey',
+              },
+              {
+                value: 'pediatric-gi',
+                title: 'Pediatric GI',
+              },
+              {
+                value: 'pediatric-neurosurgery',
+                title: 'Pediatric Neurosurgery',
+              },
+            ],
+          },
+        },
+      },
+    }, // price: {
+    //   label: 'Price',
+    //   type: 'number',
+    //   valueSources: ['value'],
+    //   fieldSettings: {
+    //     min: 10,
+    //     max: 100,
+    //   },
+    //   preferWidgets: ['slider', 'rangeslider'],
+    // },
+    // color: {
+    //   label: 'Color',
+    //   type: 'select',
+    //   valueSources: ['value'],
+    //   fieldSettings: {
+    //     listValues: [
+    //       { value: 'yellow', title: 'Yellow' },
+    //       { value: 'green', title: 'Green' },
+    //       { value: 'orange', title: 'Orange' },
+    //     ],
+    //   },
+    // },
+    pediatric: {
+      label: 'Pediatric',
       type: 'boolean',
       operators: ['equal'],
       valueSources: ['value'],
@@ -105,24 +224,6 @@ export const Demo: React.FC = () => {
         renderBuilder={renderBuilder}
       />
       <div className="query-builder-result">
-        <Typography variant="h5">Query string:</Typography>
-        <CopyBlock
-          text={QbUtils.queryString(state.tree, state.config) || ''}
-          theme={monoBlue}
-          language="text"
-        />
-        <Typography variant="h5">MongoDb query:</Typography>
-        <CopyBlock
-          text={
-            JSON.stringify(
-              QbUtils.mongodbFormat(state.tree, state.config),
-              null,
-              2,
-            ) || ''
-          }
-          language="json"
-          theme={monoBlue}
-        />
         <Typography variant="h5">SQL where:</Typography>
         <CopyBlock
           text={QbUtils.sqlFormat(state.tree, state.config) || ''}
@@ -137,12 +238,6 @@ export const Demo: React.FC = () => {
             2,
           )}
           language="json"
-          theme={monoBlue}
-        />
-        <Typography variant="h5">SpEL:</Typography>
-        <CopyBlock
-          text={QbUtils.spelFormat(state.tree, state.config)}
-          language="java"
           theme={monoBlue}
         />
         <Typography variant="h5">React Awesome Query Tree:</Typography>

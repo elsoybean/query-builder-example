@@ -19,52 +19,155 @@ const InitialConfig = MuiConfig;
 // You need to provide your own config. See below 'Config format'
 const config: Config = {
   ...InitialConfig,
+  operators: {
+    ...InitialConfig.operators,
+    segment_is: {
+      ...InitialConfig.operators.select_equals,
+      jsonLogic: 'segment_is',
+    },
+    segment_any: {
+      ...InitialConfig.operators.select_any_in,
+      jsonLogic: 'segment_any',
+    },
+  },
+  types: {
+    ...InitialConfig.types,
+    segment: {
+      ...InitialConfig.types.select,
+      defaultOperator: 'segment_is',
+      widgets: {
+        field: {},
+        func: {},
+        select: {
+          ...InitialConfig.types.select.widgets.select,
+          operators: ['segment_is'],
+        },
+        multiselect: {
+          ...InitialConfig.types.select.widgets.multiselect,
+          operators: ['segment_any'],
+        },
+      },
+    },
+  },
   fields: {
-    encounter_date: {
-      label: 'Encounter Date',
-      type: 'date',
-      fieldSettings: {
-        dateFormat: 'MM/DD/YYYY',
-      },
-      valueSources: ['value'],
-    },
-    calendar_year: {
-      label: 'Calendar Year',
-      type: 'number',
-      fieldSettings: {
-        min: 2015,
-        max: new Date().getFullYear(),
-      },
-      valueSources: ['value'],
-    },
-    encounter_type: {
-      label: 'Encounter Type',
-      type: 'select',
-      valueSources: ['value'],
-      fieldSettings: {
-        listValues: [
-          { value: 'Ambulatory Surgery', title: 'Ambulatory Surgery' },
-          { value: 'Emergency Department', title: 'Emergency Department' },
-          { value: 'Inpatient', title: 'Inpatient' },
-          { value: 'Observation', title: 'Observation' },
-        ],
-      },
-    },
-    diagnosis: {
-      label: 'Diagnosis',
+    encounter: {
+      label: 'Encounter',
       type: '!struct',
       subfields: {
-        group: {
+        type: {
+          label: 'Encounter Type',
           type: 'select',
-          label: 'Diagnosis Group',
           valueSources: ['value'],
           fieldSettings: {
             listValues: [
-              {
-                value: 'dailyPlanet-j11-diagnosis',
-                title: 'Asthma (Daily Planet)',
-              },
+              { value: 'Ambulatory Surgery', title: 'Ambulatory Surgery' },
+              { value: 'Emergency Department', title: 'Emergency Department' },
+              { value: 'Inpatient', title: 'Inpatient' },
+              { value: 'Observation', title: 'Observation' },
             ],
+          },
+        },
+        date: {
+          label: 'Date',
+          type: '!struct',
+          subfields: {
+            date: {
+              label: 'Encounter Date',
+              type: 'date',
+              fieldSettings: {
+                dateFormat: 'MM/DD/YYYY',
+              },
+              valueSources: ['value'],
+            },
+            calendar_year: {
+              label: 'Calendar Year',
+              type: 'number',
+              fieldSettings: {
+                min: 2015,
+                max: new Date().getFullYear(),
+              },
+              valueSources: ['value'],
+            },
+          },
+        },
+      },
+    },
+    patient: {
+      label: 'Patient',
+      type: '!struct',
+      subfields: {
+        type: {
+          label: 'Patient Type',
+          type: 'select',
+          valueSources: ['value'],
+          fieldSettings: {
+            listValues: [{ value: '???', title: '???' }],
+          },
+        },
+        age: {
+          label: 'Age',
+          type: '!struct',
+          subfields: {
+            group: {
+              label: 'Age Range',
+              type: 'segment',
+              fieldSettings: {
+                listValues: [
+                  { value: 'infant', title: 'Infant' },
+                  { value: 'three-and-under', title: '3 and Under' },
+                  { value: 'child', title: 'Child' },
+                  { value: 'adolescent', title: 'Adolescent' },
+                  { value: 'pediatric', title: 'Pediatric' },
+                ],
+              },
+              valueSources: ['value'],
+            },
+            in_years: {
+              label: 'Age (in years)',
+              type: 'number',
+              fieldSettings: {
+                min: 0,
+                max: 150,
+              },
+              valueSources: ['value'],
+            },
+            in_months: {
+              label: 'Age (in months)',
+              type: 'number',
+              fieldSettings: {
+                min: 0,
+                max: 1800,
+              },
+              valueSources: ['value'],
+            },
+            in_days: {
+              label: 'Age (in days)',
+              type: 'number',
+              fieldSettings: {
+                min: 0,
+                max: 54000,
+              },
+              valueSources: ['value'],
+            },
+          },
+        },
+        diagnosis: {
+          label: 'Diagnosis',
+          type: '!struct',
+          subfields: {
+            group: {
+              type: 'segment',
+              label: 'Diagnosis Group',
+              valueSources: ['value'],
+              fieldSettings: {
+                listValues: [
+                  {
+                    value: 'dailyPlanet-j11',
+                    title: 'Asthma (Daily Planet)',
+                  },
+                ],
+              },
+            },
           },
         },
       },
@@ -74,45 +177,45 @@ const config: Config = {
       type: '!struct',
       subfields: {
         group: {
-          type: 'select',
+          type: 'segment',
           label: 'Procedure Group',
           valueSources: ['value'],
           fieldSettings: {
             listValues: [
               {
-                value: 'dailyPlanet-d17a-procedure',
+                value: 'dailyPlanet-d17a',
                 title:
                   'Hepatoportoenterostomy or Kasai procedure on a patient with biliary atresia (Daily Planet D17.a)',
               },
               {
-                value: 'dailyPlanet-d17b-procedure',
+                value: 'dailyPlanet-d17b',
                 title:
                   'Laparoscopic gastrointestinal, hepatic, and pancreatic surgery (Daily Planet D17.b)',
               },
               {
-                value: 'dailyPlanet-d17c-procedure',
+                value: 'dailyPlanet-d17c',
                 title: 'Bariatric surgery (Daily Planet D17.c)',
               },
               {
-                value: 'dailyPlanet-d17d-procedure',
+                value: 'dailyPlanet-d17d',
                 title:
                   'Posterior sagittal anorectoplasties (Pena) for imperforate anus (Daily Planet D17.d)',
               },
               {
-                value: 'dailyPlanet-d17e-procedure',
+                value: 'dailyPlanet-d17e',
                 title:
                   'Open abdominal surgeries for inflammatory bowel disease (IBD) (Daily Planet D17.e)',
               },
               {
-                value: 'dailyPlanet-d17f-procedure',
+                value: 'dailyPlanet-d17f',
                 title:
                   'Laparoscopic abdominal surgeries for inflammatory bowel disease (IBD) (Daily Planet D17.f)',
               },
-            //   {
-            //     value: 'dailyPlanet-d17a-procedure',
-            //     title:
-            //       'Congenital tracheo-esophageal fistula with or without esophageal atresia and congenital esophageal stenosis and stricture repair (see code list – must have both diagnosis and procedure code) (Daily Planet D17.g)',
-            //   },
+              //   {
+              //     value: 'dailyPlanet-d17a',
+              //     title:
+              //       'Congenital tracheo-esophageal fistula with or without esophageal atresia and congenital esophageal stenosis and stricture repair (see code list – must have both diagnosis and procedure code) (Daily Planet D17.g)',
+              //   },
             ],
           },
         },
@@ -123,7 +226,7 @@ const config: Config = {
       type: '!struct',
       subfields: {
         group: {
-          type: 'select',
+          type: 'segment',
           label: 'Provider Group',
           valueSources: ['value'],
           fieldSettings: {
@@ -170,12 +273,6 @@ const config: Config = {
     //     ],
     //   },
     // },
-    pediatric: {
-      label: 'Pediatric',
-      type: 'boolean',
-      operators: ['equal'],
-      valueSources: ['value'],
-    },
   },
 };
 
@@ -196,10 +293,7 @@ export const Demo: React.FC = () => {
         tree: immutableTree,
         config: config,
       }));
-
-      const jsonTree = QbUtils.getTree(immutableTree);
-      console.log(jsonTree);
-      // `jsonTree` can be saved to backend, and later loaded to `queryValue`
+      console.log(config);
     },
     [],
   );
